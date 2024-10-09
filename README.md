@@ -71,6 +71,19 @@ A small script to search through PDFs.
    pdf_files = glob.glob(os.path.join(PDF_DIRECTORY, '**', '*.pdf'), recursive=True)
    ```
 
+   Here’s the updated section for your README to include support for **Evince** as the default PDF viewer on Ubuntu:
+
+4. **Change PDF Viewer for Ubuntu (Optional)**:
+
+   If you're using **Ubuntu**, the script can be configured to use **Evince** as the default PDF viewer instead of Zathura. To switch to Evince, modify **line 23** in the script as follows:
+
+   ```python
+   # Replace 'zathura' with 'evince' for Ubuntu
+   command = ['evince', '--page-label=' + str(page), pdf_file]
+   ```
+
+   Evince supports the `--page-label` option to open a PDF directly at the specified page. This is particularly useful if you're using Ubuntu or a similar distribution where Evince is the default viewer.
+
 ## Usage
 
 1. **Run the Script**:
