@@ -2,11 +2,12 @@ import os
 import sys
 import glob
 import subprocess
+import multiprocessing
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer
 
 # Specify the directory containing the PDF files
-PDF_DIRECTORY = './pdf-test/'
+PDF_DIRECTORY = '/home/atom/Documents/OODP/elab'
 
 def search_word_in_pdf(pdf_path, word):
     pages_with_word = []
@@ -28,6 +29,11 @@ def open_pdf_at_page(pdf_file, page):
         stdin=subprocess.DEVNULL
     )
 
+def process_pdf(args):
+    pdf_file, word = args
+    pages = search_word_in_pdf(pdf_file, word)
+    return pdf_file, pages
+
 def main():
     # Check if the specified directory exists
     if not os.path.isdir(PDF_DIRECTORY):
@@ -46,14 +52,24 @@ def main():
             if word.lower() == 'exit':
                 print("Exiting the script.")
                 break
-            for pdf_file in pdf_files:
-                pages = search_word_in_pdf(pdf_file, word)
+
+            # Prepare the arguments for multiprocessing
+            args = [(pdf_file, word) for pdf_file in pdf_files]
+
+            # Create a pool of worker processes
+            with multiprocessing.Pool() as pool:
+                # Map the process_pdf function to the arguments
+                results = pool.map(process_pdf, args)
+
+            # Process the results
+            for pdf_file, pages in results:
                 if pages:
                     print(f"Word '{word}' found in {os.path.basename(pdf_file)} on pages {pages}")
                     for page in pages:
                         open_pdf_at_page(pdf_file, page)
                 else:
                     print(f"Word '{word}' not found in {os.path.basename(pdf_file)}")
+
         except KeyboardInterrupt:
             print("\nScript interrupted by user. Exiting.")
             break
